@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>Modules</h2>
+
+<table>
+<thead>
+ <tr>
+  <th>Name</th>
+  <th>Produced</th>
+  </tr> 
+</thead>
+<tbody>   
+{% for module in module_list %}
+ <tr>
+  <td><a href="{% url "module_details" module.pk %}">{{module.name}}</a></td>
+  <td>{{module.produced}}</td>
+ </tr>
+{% endfor %}
+</tbody>
+</table>
+
+
+{% endblock %}

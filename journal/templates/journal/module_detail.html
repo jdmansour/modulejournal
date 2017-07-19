@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% load static %}
+
+{% block content %}
+You are looking at the details of Module <b>{{module}}</b>.
+{% if user.is_staff %}
+	<a href="{% url 'admin:journal_module_change' module.id %}">[Edit Module]</a>
+{% endif %}
+
+<p>Produced: {{module.produced}}</p>
+
+<h3>Analysis</h3>
+
+{% for toolrun in related_toolruns %}
+<h4>{{toolrun}}
+{% if user.is_staff %}
+	<a href="{% url 'admin:journal_toolrun_change' toolrun.id %}" class="editlink">[Edit]</a>
+{% endif %}
+</h4>
+<!--<p>Inputs:</p>
+<p>{% for runentry in toolrun.inputRuns.all %} Run {{ runentry.runnumber }},
+{% endfor %}</p>
+<p>Outputs:</p>-->
+<p>
+{% for outputimage in toolrun.outputimage_set.all %}
+  <a href="{{ outputimage.image.url }}"><img src="{{ outputimage.image.url }}" width="200" class="outputimage" /></a>
+{% endfor %}
+</p>
+{% endfor %}
+
+<h3>Runs</h3>
+<table>
+<thead>
+ <tr>
+  <th>Run number</th>
+  <th>Events</th>
+  <th>Recorded</th>
+  <th>Download</th>
+ </tr> 
+</thead>
+<tbody>   
+{% for entry in module.journalentry_set.all %}{% if entry.runentry %}
+ <tr>
+  <td>{{entry.runentry.runnumber}}</td>
+  <td>{{entry.runentry.eventcount}}</td>
+  <td>{{entry.runentry.recorded.date}}</td>
+  <td><a href="{{entry.runentry.data.url}}">Download data</a> ({{entry.runentry.data.size|filesizeformat}})</td>
+ </tr>
+{% endif %}{% endfor %}
+</tbody>
+</table>
+
+
+<h3>History</h3>
+
+{% for entry in module.journalentry_set.all %}
+<div class="journalentry">
+<img src="{% static 'user.png' %}" class="userpicture" />
+<div class="entryheader">
+    <span class="username">{{ entry.posted_by }}</span>
+    <span class="entrydate">{{ entry.posted | naturaltime }}</span>
+</div>
+<div class="entrybody">
+{% if entry.noteentry %}
+  {{entry.noteentry.text}}
+{% elif entry.imageentry %}
+  <img src="{{entry.imageentry.image.url}}" class="imageentry"/>
+{% elif entry.runentry %}
+  {% comment %}<div><i>uploaded a run:</i></div>{% endcomment %}
+  <div>Run number: {{entry.runentry.runnumber}}</div>
+  <div>Events: {{entry.runentry.eventcount}}</div>
+  <div><a href="{{entry.runentry.data.url}}">Download data</a> ({{entry.runentry.data.size|filesizeformat}})</div>
+{% endif %}
+</div>
+</div>
+{% endfor %}
+
+{% endblock %}
